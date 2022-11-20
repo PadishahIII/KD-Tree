@@ -70,7 +70,6 @@ def searchANN(root, target):
     min_dist = CalDistance(target, nearest_point)
     nodeList = []
     current_node = root
-    # nearest_list = [current_node.point, None, None]  # 三个最近邻
     # 二分查找
     while current_node:
         nodeList.append(current_node)
@@ -89,11 +88,6 @@ def searchANN(root, target):
     while nodeList:
         back_point = nodeList.pop()
         back_splitDim = back_point.splitDim
-        # if nearest_list[1] is None:
-        #    nearest_list[2] = nearest_list[1]
-        #    nearest_list[1] = back_point.point
-        # elif nearest_list[2] is None:
-        #    nearest_list[2] = back_point.point
         if abs(target[back_splitDim] - back_point.point[back_splitDim]) < min_dist:
             if target[back_splitDim] < back_point.point[back_splitDim]:
                 current_node = back_point.right
@@ -105,15 +99,6 @@ def searchANN(root, target):
                 if min_dist > curDist:
                     min_dist = curDist
                     nearest_point = current_node.point
-                #    nearest_list[2] = nearest_list[1]
-                #    nearest_list[1] = nearest_list[0]
-                #    nearest_list[0] = current_node.point
-                # elif nearest_list[1] is None or curDist < CalDistance(nearest_list[1], target):
-                #    nearest_list[2] = nearest_list[1]
-                #    nearest_list[1] = current_node.point
-                # elif nearest_list[2] is None or curDist < CalDistance(nearest_list[1], target):
-                #    nearest_list[2] = current_node.point
-
     return nearest_point
 
 
@@ -123,10 +108,7 @@ def searchANN(root, target):
 def import_data(path):
     df = pd.read_csv(path, header=None)
     df_no_label = df.drop(columns=df.columns.size-1, axis=1)  # 去掉label
-    # list(df.to_records(index=False))
     return df.values.tolist(), df_no_label.values.tolist()
-
-# 测试
 
 
 def main_process(test_data_with_label, train_data_no_label, test_data_no_label, test_smurf_num, test_normal_num):
@@ -153,18 +135,6 @@ def main_process(test_data_with_label, train_data_no_label, test_data_no_label, 
             return True, dis
         else:
             return False, dis
-        #dist_list = searchANN(root, point)
-        #dis = np.average(dist_list)
-        # if dis < THRESHOLD:
-        #    return True, dis
-        # else:
-        #    return False, dis
-
-    # tmp = [0.0000, 91.7803, 435.9477, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 10000.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000,
-    #       137.2549, 137.2549, 0.0000, 0.0000, 0.0000, 0.0000, 10000.0000, 0.0000, 0.0000, 314.9606, 314.9606, 10000.0000, 0.0000, 1100.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000]
-    #res, dis = is_normal(tmp)
-    # print("dis:"+str(dis))
-    # exit()
 
     for i in range(len(test_data_with_label)):
         # searchANN(root, test_data_with_label[i])
@@ -183,12 +153,6 @@ def main_process(test_data_with_label, train_data_no_label, test_data_no_label, 
             smurf_from_normal += 1
         elif res is False and abs(test_data_with_label[i][-1]-SMURF_TYPE) < 1e-7:
             smurf_recognized += 1
-
-    # print("dis normal: max:"+str(max(dis_list_normal))+" min:" +
-    #      str(min(dis_list_normal))+" average:"+str(np.average(dis_list_normal)))
-    # print("dis smurf: max:"+str(max(dis_list_smurf))+" min:" +
-    #      str(min(dis_list_smurf))+" average:"+str(np.average(dis_list_smurf)))
-    # exit()
     test_time_end = time.time()
     test_time = test_time_end - test_time_start
     DR = smurf_recognized / test_smurf_num  # 检测率
@@ -218,6 +182,7 @@ train_time, test_time, DR, FPR = main_process(
 threshold_list = list()
 DR_list = list()
 FPR_list = list()
+# 优化Threshold
 # for THRESHOLD in range(1006, 1539, 100):
 #    threshold_list.append(THRESHOLD)
 #    train_time, test_time, DR, FPR = main_process(
